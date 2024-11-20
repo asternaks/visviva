@@ -5,8 +5,14 @@ from dotenv import load_dotenv
 import datetime
 import os
 
+# Load variables from the .env file
+load_dotenv()
+
+# Retrieve environment variables
+MONGO_URI = os.getenv("MONGO_URI")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
 # Connect to MongoDB
-MONGO_URI = "mongodb+srv://alexsternik:dtxqIYBJdohN4cZg@cluster0.lrpt9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGO_URI)
 db = client['vis_viva']  # Database name
 users_collection = db['users']  # Collection name
@@ -61,17 +67,31 @@ async def show_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = users_collection.find_one({"user_id": user_id})
 
     if user and user.get("last_period"):
-        la
+        last_period = user["last_period"].strftime('%Y-%m-%d')
+        await update.message.reply_text(
+            f"Here's what I know about you:\n"
+            f"Name: {user.get('name')}\n"
+            f"Last Period: {last_period}"
+        )
+    else:
+        await update.message.reply_text(
+            "I don’t have any cycle information for you yet. Use the format YYYY-MM-DD to provide your last period date!"
+        )
 
-# Load variables from the .env file
-load_dotenv()
 
-# Retrieve BOT_TOKEN
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+# Main function
+def main():
+    # Create the bot application
+    application = Application.builder().token(BOT_TOKEN).build()
 
-# Access the variables
-mongo_uri = os.getenv("MONGO_URI")
-bot_token = os.getenv("BOT_TOKEN")
+    # Register command handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("show_data", show_data))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, capture_date))
 
-print(f"Mongo URI: {MONGO_URI}")
-print(f"Bot Token: {BOT_TOKEN}")
+    # Start polling
+    application.run_polling()
+
+
+if __name__ == "__main__":
+    main()
