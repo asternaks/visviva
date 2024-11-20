@@ -1,27 +1,35 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from pymongo import MongoClient
-from dotenv import load_dotenv
+from config import get_mongo_uri  # Properly using get_mongo_uri
 import datetime
 import os
 
-# Load variables from the .env file
-load_dotenv()
-
-# Retrieve environment variables
-MONGO_URI = os.getenv("MONGO_URI")
+# Correctly set the BOT_TOKEN
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Connect to MongoDB
+# Check if BOT_TOKEN is properly loaded
+if not BOT_TOKEN:
+    raise ValueError("Bot token not found! Ensure BOT_TOKEN is set in the environment or .env file.")
+
+# Get the MongoDB URI (properly encoded)
+MONGO_URI = get_mongo_uri()
+
+# MongoDB setup
+from pymongo import MongoClient
 client = MongoClient(MONGO_URI)
-db = client['vis_viva']  # Database name
-users_collection = db['users']  # Collection name
+db = client['vis_viva']
+users_collection = db['users']
+MONGO_URI = get_mongo_uri()  # This retrieves the MongoDB connection string
+
+
 
 
 # Start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.from_user.id
     user_name = update.message.from_user.first_name
+    print (f"starting for {user_name=}, {user_id=}")
 
     # Check if the user already exists in the database
     user = users_collection.find_one({"user_id": user_id})
@@ -81,6 +89,11 @@ async def show_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # Main function
 def main():
+    # Retrieve the bot token from environment variables
+    BOT_TOKEN = os.getenv("BOT_TOKEN")  # This retrieves the Telegram bot token
+    if not BOT_TOKEN:
+        raise ValueError("Bot token not found! Ensure BOT_TOKEN is set in the environment or .env file.")
+
     # Create the bot application
     application = Application.builder().token(BOT_TOKEN).build()
 
@@ -95,3 +108,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
