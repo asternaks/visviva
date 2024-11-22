@@ -106,9 +106,6 @@ def main():
     application.run_polling()
 
 
-if __name__ == "__main__":
-    main()
-
 # Ask user for their average cycle length
 async def ask_cycle_length(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.from_user.id
@@ -148,3 +145,7 @@ async def capture_cycle_length(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text(
             "Please enter a valid number for your cycle length."
         )
+
+
+if __name__ == "__main__":
+    main()
