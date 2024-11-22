@@ -99,6 +99,8 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("show_data", show_data))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, capture_date))
+    application.add_handler(CommandHandler("ask_cycle_length", ask_cycle_length))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, capture_cycle_length))
 
     # Start polling
     application.run_polling()
@@ -107,3 +109,42 @@ def main():
 if __name__ == "__main__":
     main()
 
+# Ask user for their average cycle length
+async def ask_cycle_length(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.message.from_user.id
+    user = users_collection.find_one({"user_id": user_id})
+
+    if user:
+        await update.message.reply_text(
+            "What is your average cycle length in days? (e.g., 28)"
+        )
+    else:
+        await update.message.reply_text(
+            "I don't have your information yet. Start with /start to get set up!"
+        )
+# Capture cycle length from the user
+async def capture_cycle_length(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.message.from_user.id
+
+    try:
+        # Parse the cycle length as an integer
+        cycle_length = int(update.message.text)
+
+        if 20 <= cycle_length <= 40:  # Validate reasonable cycle length range
+            # Update the user's average cycle length in the database
+            users_collection.update_one(
+                {"user_id": user_id},
+                {"$set": {"cycle_length": cycle_length}}
+            )
+            await update.message.reply_text(
+                f"Got it! I've set your average cycle length to {cycle_length} days. "
+                "You can now use the /predict_cycle command to estimate your next period."
+            )
+        else:
+            await update.message.reply_text(
+                "Please provide a cycle length between 20 and 40 days."
+            )
+    except ValueError:
+        await update.message.reply_text(
+            "Please enter a valid number for your cycle length."
+        )
