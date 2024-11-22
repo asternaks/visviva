@@ -50,7 +50,7 @@ async def capture_cycle_length(update: Update, context: ContextTypes.DEFAULT_TYP
             )
         else:
             await update.message.reply_text(
-                "Please provide a cycle length between 20 and 40 days."
+                "Please provide a cycle length between 15 and 40 days."
             )
     except ValueError:
         await update.message.reply_text(
