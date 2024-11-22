@@ -20,9 +20,6 @@ from pymongo import MongoClient
 client = MongoClient(MONGO_URI)
 db = client['vis_viva']
 users_collection = db['users']
-MONGO_URI = get_mongo_uri()  # This retrieves the MongoDB connection string
-
-
 
 
 # Start command
@@ -89,6 +86,7 @@ async def show_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # Main function
 def main():
+    print("started")
     # Retrieve the bot token from environment variables
     BOT_TOKEN = os.getenv("BOT_TOKEN")  # This retrieves the Telegram bot token
     if not BOT_TOKEN:
