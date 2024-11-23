@@ -1,7 +1,8 @@
 from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
-
+from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQueryHandler, MessageHandler, filters
 from actions.ask_cycle_length import ask_cycle_length
+from actions.fallback import fallback
+from actions.log_symptoms import log_selected_symptom, show_symptom_options
 from actions.predict_cycle import predict_cycle
 from actions.show_data import show_data
 import datetime
@@ -32,7 +33,12 @@ def main():
     # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, capture_cycle_length))
     application.add_handler(CommandHandler("predict_cycle", predict_cycle))
     application.add_handler(conv_handler)
-    # Start polling
+    application.add_handler(CommandHandler("log_symptoms", show_symptom_options))
+    application.add_handler(CallbackQueryHandler(log_selected_symptom))
+
+    application.add_handler(MessageHandler(filters.COMMAND, fallback))
+
+
     application.run_polling()
 
 if __name__ == "__main__":
