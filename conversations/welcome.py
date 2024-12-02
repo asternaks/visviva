@@ -2,7 +2,9 @@ import datetime
 
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler, ConversationHandler, MessageHandler, filters
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
+from conversations.utils import show_actions, MENU
 from dal.users import users_collection
 
 LAST_CYCLE, CYCLE_LENGTH = range(2)
@@ -59,27 +61,29 @@ async def capture_cycle_length(update: Update, context: ContextTypes.DEFAULT_TYP
     return ConversationHandler.END
 
 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    user_id = update.message.from_user.id
-    user_name = update.message.from_user.first_name
-    print (f"starting for {user_name=}, {user_id=}")
+    # Define the main menu buttons
+    keyboard = [
+        [InlineKeyboardButton("Log Symptoms", callback_data="log_symptoms")],
+        [InlineKeyboardButton("Predict Cycle", callback_data="predict_cycle")],
+        [InlineKeyboardButton("Show Data", callback_data="show_data")],
+        [InlineKeyboardButton("Ask Cycle Length", callback_data="ask_cycle_length")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Check if the user already exists in the database
-    user = users_collection.find_one({"user_id": user_id})
+    # Always send a new message for the main menu, regardless of how the user arrived here
+    if update.message:
+        await update.message.reply_text(
+            "Welcome to the main menu. Please select an option:", reply_markup=reply_markup
+        )
+    elif update.callback_query:
+        await update.callback_query.message.reply_text(
+            "Welcome to the main menu. Please select an option:", reply_markup=reply_markup
+        )
 
-    if not user:
-        # Add a new user to the database
-        users_collection.insert_one({"user_id": user_id, "name": user_name, "last_period": None})
-        await update.message.reply_text(
-            f"Hi {user_name}! Welcome to Vis Viva. I'm here to help you track your menstrual cycle and related habits. "
-            "Let's get started! When did your last period start? (e.g., 15-11-2024)"
-        )
-        return LAST_CYCLE
-    else:
-        await update.message.reply_text(
-            f"Welcome back, {user_name}! Let me know if you want to update your cycle information or track habits."
-        )
-        return ConversationHandler.END
+    return MENU
+
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancels and ends the conversation."""
