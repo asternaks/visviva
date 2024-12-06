@@ -2,6 +2,8 @@ import datetime
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
+
+from conversations.utils import ASK_CYCLE_LENGTH, WAIT_FOR_DATE
 from dal.users import users_collection
 from conversations.welcome import start  # Import start to call the main menu
 
@@ -42,9 +44,7 @@ async def predict_cycle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
         # Send a new message with the prompt for more information so it stays in the chat
         await query.message.reply_text(response_text)
+        return WAIT_FOR_DATE
 
-        # Delay for 3 seconds to let the user read the prompt
-        await asyncio.sleep(3)
 
-        # After showing the error message, navigate back to the main menu
-        await start(update, context)  # Redirect user to the main menu
+

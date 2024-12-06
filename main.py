@@ -9,8 +9,9 @@ from actions.show_data import show_data
 import datetime
 import os
 
-from conversations.utils import START, MENU, STOPPING, SHOW_DATA, PREDICT_CYCLE, LOG_SYMPTOMS, ASK_CYCLE_LENGTH
-from conversations.welcome import conv_handler, start
+from conversations.utils import START, MENU, STOPPING, SHOW_DATA, PREDICT_CYCLE, LOG_SYMPTOMS, ASK_CYCLE_LENGTH, \
+    WAIT_FOR_DATE
+from conversations.welcome import conv_handler, start, capture_date
 from dal.users import users_collection
 
 
@@ -58,6 +59,7 @@ def main():
             ASK_CYCLE_LENGTH: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, capture_cycle_length)
             ],
+            WAIT_FOR_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, capture_date)],
             SHOW_DATA: [CallbackQueryHandler(show_data, pattern="^show_data$")],
             LOG_SYMPTOMS: [
                 CallbackQueryHandler(log_selected_symptom,

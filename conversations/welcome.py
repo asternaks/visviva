@@ -29,7 +29,7 @@ async def capture_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         )
     except ValueError:
         await update.message.reply_text("Please enter a valid date in the format DD-MM-YYYY.")
-    return CYCLE_LENGTH
+    return MENU
 
 
 # Capture cycle length from the user
