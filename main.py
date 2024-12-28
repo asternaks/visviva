@@ -1,3 +1,10 @@
+import threading
+import time
+
+from pymongo import MongoClient
+from config import get_mongo_uri
+import scheduled
+import schedule
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQueryHandler, MessageHandler, filters, \
     ConversationHandler
@@ -33,6 +40,15 @@ async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     return STOPPING
 
+def morning_recs(bot, db):
+    # Schedule the task to run every day at 10 AM
+    schedule.every().day.at("10:00").do(lambda :scheduled.morning_routine(bot, db))
+
+    while True:
+        # Run all the scheduled tasks
+        schedule.run_pending()
+        time.sleep(1)  # Wait for 1 second before checking the schedule again
+
 # Main function
 def main():
     print("started")
@@ -43,6 +59,12 @@ def main():
 
     # Create the bot application
     application = Application.builder().token(BOT_TOKEN).build()
+    MONGO_URI = get_mongo_uri()
+    client = MongoClient(MONGO_URI)
+    db = client[os.getenv("MONGO_DB_NAME")]
+
+    schedule_thread = threading.Thread(target=morning_recs, daemon=True, args=(application.bot, db))
+    schedule_thread.start()
 
     from telegram.ext import MessageHandler, filters
 
