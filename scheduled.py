@@ -13,7 +13,8 @@ def format_rec(rec: dict):
         if k in ('Tags', '_id', 'Day of the Cycle '):
             continue
         if k == "Physical Sympotms":
-            text+=f"• *{k}*:\n          {v.replace('\n', '\n          ')} \n"
+            tabs_symptoms = v.replace('\n', '\n          ')
+            text+=f"• *{k}*:\n          {tabs_symptoms} \n"
             continue
         text+=f"• *{k}*: {v} \n"
     return text
