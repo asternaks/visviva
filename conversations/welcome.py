@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler, ConversationHandler, MessageHandler, filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
-from conversations.utils import show_actions, MENU
+from conversations.utils import MENU
 from dal.users import users_collection
 
 LAST_CYCLE, CYCLE_LENGTH = range(2)
@@ -68,7 +68,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         [InlineKeyboardButton("Log Symptoms", callback_data="log_symptoms")],
         [InlineKeyboardButton("Predict Cycle", callback_data="predict_cycle")],
         [InlineKeyboardButton("Show Data", callback_data="show_data")],
-        [InlineKeyboardButton("Ask Cycle Length", callback_data="ask_cycle_length")]
+        [InlineKeyboardButton("Ask Cycle Length", callback_data="ask_cycle_length")],
+        [InlineKeyboardButton("My Cycle Started", callback_data="start_cycle")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 

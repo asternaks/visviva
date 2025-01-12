@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 # State definitions for top level conversation
-START, MENU, ASK_CYCLE_LENGTH, WAIT_FOR_DATE, PREDICT_CYCLE, LOG_SYMPTOMS = map(chr, range(6    ))
+START, MENU, ASK_CYCLE_LENGTH, WAIT_FOR_DATE, PREDICT_CYCLE, LOG_SYMPTOMS, START_CYCLE_OPTIONS = map(chr, range(7))
 
 # Meta states
 STOPPING, SHOW_DATA = map(chr, range(8, 10))

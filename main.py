@@ -13,11 +13,11 @@ from actions.fallback import fallback
 from actions.log_symptoms import log_selected_symptom, show_symptom_options
 from actions.predict_cycle import predict_cycle
 from actions.show_data import show_data
-import datetime
+from actions.start_cycle import start_cycle, parse_start_cycle_option
 import os
 
 from conversations.utils import START, MENU, STOPPING, SHOW_DATA, PREDICT_CYCLE, LOG_SYMPTOMS, ASK_CYCLE_LENGTH, \
-    WAIT_FOR_DATE
+    WAIT_FOR_DATE, START_CYCLE_OPTIONS
 from conversations.welcome import conv_handler, start, capture_date
 from dal.users import users_collection
 
@@ -76,11 +76,13 @@ def main():
                 CallbackQueryHandler(start, pattern="^back$"),
                 CallbackQueryHandler(predict_cycle, pattern="^predict_cycle$"),
                 CallbackQueryHandler(show_data, pattern="^show_data$"),
-                CallbackQueryHandler(ask_cycle_length, pattern="^ask_cycle_length$")
+                CallbackQueryHandler(ask_cycle_length, pattern="^ask_cycle_length$"),
+                CallbackQueryHandler(start_cycle, pattern="^start_cycle$")
             ],
             ASK_CYCLE_LENGTH: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, capture_cycle_length)
             ],
+            START_CYCLE_OPTIONS:[CallbackQueryHandler(parse_start_cycle_option)],
             WAIT_FOR_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, capture_date)],
             SHOW_DATA: [CallbackQueryHandler(show_data, pattern="^show_data$")],
             LOG_SYMPTOMS: [
